@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33529.622
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoffeeTimeApi", "CoffeeTimeApi\CoffeeTimeApi.csproj", "{958F6264-11F6-478D-A1A6-9B101C63FB40}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoffeeTimeBackend", "CoffeeTimeBackend\CoffeeTimeBackend.csproj", "{4931FC36-F5CD-4F24-9DD0-C34B0085B5FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{958F6264-11F6-478D-A1A6-9B101C63FB40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{958F6264-11F6-478D-A1A6-9B101C63FB40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{958F6264-11F6-478D-A1A6-9B101C63FB40}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4931FC36-F5CD-4F24-9DD0-C34B0085B5FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4931FC36-F5CD-4F24-9DD0-C34B0085B5FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4931FC36-F5CD-4F24-9DD0-C34B0085B5FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4931FC36-F5CD-4F24-9DD0-C34B0085B5FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
