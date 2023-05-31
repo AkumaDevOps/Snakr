@@ -1,6 +1,11 @@
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using Snakr.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<SnakrDbContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("DevConnection"), 
+    ServerVersion.Parse("5.7.42-mysql")));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
