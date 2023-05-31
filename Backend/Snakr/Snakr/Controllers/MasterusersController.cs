@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Snakr.DTOs;
 using Snakr.Models;
 
 namespace Snakr.Controllers
@@ -22,18 +23,32 @@ namespace Snakr.Controllers
 
         // GET: api/Masterusers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Masteruser>>> GetMasterusers()
+        public async Task<ActionResult<IEnumerable<MasterUsersDTO>>> GetMasterusers()
         {
           if (_context.Masterusers == null)
           {
               return NotFound();
           }
-            return await _context.Masterusers.ToListAsync();
+            var UsersList = new List<MasterUsersDTO>();
+            foreach (var user in await _context.Masterusers.ToListAsync())
+            {
+                UsersList.Add(new MasterUsersDTO()
+                {
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Id = user.Id,
+                    IdMasterBranches = user.IdMasterBranches,
+                    UserName = user.UserName,
+                }
+                );
+            }
+            return UsersList; //await _context.Masterusers.ToListAsync();
         }
 
         // GET: api/Masterusers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Masteruser>> GetMasteruser(int id)
+        public async Task<ActionResult<MasterUsersDTO>> GetMasteruser(int id)
         {
           if (_context.Masterusers == null)
           {
@@ -45,22 +60,40 @@ namespace Snakr.Controllers
             {
                 return NotFound();
             }
-
-            return masteruser;
+            var user = new MasterUsersDTO(){
+                UserName = masteruser.UserName,
+                Email = masteruser.Email,   
+                FirstName = masteruser.FirstName,
+                LastName = masteruser.LastName,
+                Id = masteruser.Id,
+                IdMasterBranches= masteruser.IdMasterBranches,
+                
+            };
+            return user;
         }
 
         // PUT: api/Masterusers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMasteruser(int id, Masteruser masteruser)
+        public async Task<IActionResult> PutMasteruser(int id, MasterUsersDTO masteruser)
         {
             if (id != masteruser.Id)
             {
                 return BadRequest();
             }
+            var userFind = await _context.Masterusers.FindAsync(id);
 
-            _context.Entry(masteruser).State = EntityState.Modified;
-
+            if (userFind == null)
+            {
+                return NotFound();
+            }
+            userFind.Id = masteruser.Id;
+            userFind.Email = masteruser.Email; 
+            userFind.FirstName = masteruser.FirstName;
+            userFind.LastName = masteruser.LastName;
+            userFind.IdMasterBranches = masteruser.IdMasterBranches;
+            userFind.UserName = masteruser.UserName;
+            _context.Entry(userFind).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
@@ -83,13 +116,21 @@ namespace Snakr.Controllers
         // POST: api/Masterusers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Masteruser>> PostMasteruser(Masteruser masteruser)
+        public async Task<ActionResult<Masteruser>> PostMasteruser(MasterUsersDTO masteruser)
         {
           if (_context.Masterusers == null)
           {
               return Problem("Entity set 'SnakrDbContext.Masterusers'  is null.");
           }
-            _context.Masterusers.Add(masteruser);
+            var newUser = new Masteruser()
+            {
+                UserName = masteruser.UserName,
+                Email = masteruser.Email,
+                FirstName = masteruser.FirstName,
+                LastName = masteruser.LastName,
+                IdMasterBranches = masteruser.IdMasterBranches,
+            };
+            _context.Masterusers.Add(newUser);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetMasteruser", new { id = masteruser.Id }, masteruser);
