@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Snakr.DTOs;
 using Snakr.Models;
 
 namespace Snakr.Controllers
@@ -22,18 +24,33 @@ namespace Snakr.Controllers
 
         // GET: api/Masterbranches
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Masterbranch>>> GetMasterbranches()
+        public async Task<ActionResult<IEnumerable<MasterbranchDTO>>> GetMasterbranches()
         {
+
           if (_context.Masterbranches == null)
           {
               return NotFound();
           }
-            return await _context.Masterbranches.ToListAsync();
+            var result = new List<MasterbranchDTO>();
+            var lista = await _context.Masterbranches.ToListAsync();
+            foreach (var branch in lista)
+            {
+                result.Add(new MasterbranchDTO()
+                {
+                    BranchName = branch.BranchName,
+                    City = branch.City,
+                    Country = branch.Country,
+                    Id = branch.Id,
+                    Location = branch.Location,
+                    PhoneNumber = branch.PhoneNumber
+                });
+            }
+            return result;
         }
 
         // GET: api/Masterbranches/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Masterbranch>> GetMasterbranch(int id)
+        public async Task<ActionResult<MasterbranchDTO>> GetMasterbranch(int id)
         {
           if (_context.Masterbranches == null)
           {
@@ -46,20 +63,41 @@ namespace Snakr.Controllers
                 return NotFound();
             }
 
-            return masterbranch;
+            return new MasterbranchDTO()
+            {
+                PhoneNumber = masterbranch.PhoneNumber,
+                BranchName = masterbranch.BranchName,
+                City = masterbranch.City,
+                Country = masterbranch.Country,
+                Id = masterbranch.Id,
+                Location = masterbranch.Location,               
+            };
         }
 
         // PUT: api/Masterbranches/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMasterbranch(int id, Masterbranch masterbranch)
+        public async Task<IActionResult> PutMasterbranch(int id, MasterbranchDTO masterbranch)
         {
+            Masterbranch updatableMasterBranch;
             if (id != masterbranch.Id)
             {
                 return BadRequest();
             }
+            updatableMasterBranch = await _context.Masterbranches.FindAsync(id) ?? new Masterbranch();
 
-            _context.Entry(masterbranch).State = EntityState.Modified;
+            if (updatableMasterBranch.Id == 0)
+            {
+                return NotFound();
+            }
+
+            _context.Entry(updatableMasterBranch).State = EntityState.Modified;
+
+            updatableMasterBranch.BranchName = masterbranch.BranchName;
+            updatableMasterBranch.City = masterbranch.City;
+            updatableMasterBranch.Country = masterbranch.Country;
+            updatableMasterBranch.Location = masterbranch.Location;
+            updatableMasterBranch.PhoneNumber = masterbranch.PhoneNumber;
 
             try
             {
@@ -83,16 +121,24 @@ namespace Snakr.Controllers
         // POST: api/Masterbranches
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Masterbranch>> PostMasterbranch(Masterbranch masterbranch)
+        public async Task<ActionResult<MasterbranchDTO>> PostMasterbranch(MasterbranchDTO masterbranch)
         {
           if (_context.Masterbranches == null)
           {
               return Problem("Entity set 'SnakrDbContext.Masterbranches'  is null.");
           }
-            _context.Masterbranches.Add(masterbranch);
+            Masterbranch newMasterBranch = new Masterbranch()
+            {
+                BranchName = masterbranch.BranchName,
+                City = masterbranch.City,
+                Country = masterbranch.Country,
+                Location = masterbranch.Location,
+                PhoneNumber = masterbranch.PhoneNumber,
+            };
+            _context.Masterbranches.Add(newMasterBranch);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMasterbranch", new { id = masterbranch.Id }, masterbranch);
+            return CreatedAtAction("GetMasterbranch", new { id = newMasterBranch.Id }, newMasterBranch);
         }
 
         // DELETE: api/Masterbranches/5

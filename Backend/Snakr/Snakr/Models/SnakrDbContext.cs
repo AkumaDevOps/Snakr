@@ -6,7 +6,6 @@ namespace Snakr.Models;
 
 public partial class SnakrDbContext : DbContext
 {
-    private string _ConnectionString;
     public SnakrDbContext()
     {
     }
@@ -48,9 +47,6 @@ public partial class SnakrDbContext : DbContext
 
     public virtual DbSet<Vendingrefill> Vendingrefills { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=sv-snakr-westeu-dev-db.mysql.database.azure.com;userid=AkumanomiDevOpsAdmin;password=R4OkDC1hUK4fb!mvG5b4;database=snakr-db;sslmode=Required", Microsoft.EntityFrameworkCore.ServerVersion.Parse("5.7.42-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
