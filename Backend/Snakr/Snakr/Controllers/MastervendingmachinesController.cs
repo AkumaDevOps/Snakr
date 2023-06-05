@@ -22,17 +22,21 @@ namespace Snakr.Controllers
 
         // GET: api/Mastervendingmachines
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Mastervendingmachine>>> GetMastervendingmachines()
         {
           if (_context.Mastervendingmachines == null)
           {
               return NotFound();
           }
-            return await _context.Mastervendingmachines.ToListAsync();
+            return Ok(await _context.Mastervendingmachines.ToListAsync());
         }
 
         // GET: api/Mastervendingmachines/5
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Mastervendingmachine>> GetMastervendingmachine(int id)
         {
           if (_context.Mastervendingmachines == null)
@@ -46,12 +50,15 @@ namespace Snakr.Controllers
                 return NotFound();
             }
 
-            return mastervendingmachine;
+            return Ok(mastervendingmachine);
         }
 
         // PUT: api/Mastervendingmachines/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutMastervendingmachine(int id, Mastervendingmachine mastervendingmachine)
         {
             if (id != mastervendingmachine.Id)
@@ -83,6 +90,8 @@ namespace Snakr.Controllers
         // POST: api/Mastervendingmachines
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Mastervendingmachine>> PostMastervendingmachine(Mastervendingmachine mastervendingmachine)
         {
           if (_context.Mastervendingmachines == null)
@@ -97,6 +106,8 @@ namespace Snakr.Controllers
 
         // DELETE: api/Mastervendingmachines/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMastervendingmachine(int id)
         {
             if (_context.Mastervendingmachines == null)

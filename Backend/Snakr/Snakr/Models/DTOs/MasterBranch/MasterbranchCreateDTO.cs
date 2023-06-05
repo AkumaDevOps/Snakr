@@ -1,8 +1,7 @@
-﻿namespace Snakr.DTOs
+﻿namespace Snakr.Models.DTOs.MasterBranch
 {
-    public class MasterbranchDTO
+    public class MasterbranchCreateDTO
     {
-        public int Id { get; set; }
 
         public string BranchName { get; set; } = null!;
 

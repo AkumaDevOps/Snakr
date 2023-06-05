@@ -22,17 +22,21 @@ namespace Snakr.Controllers
 
         // GET: api/Usergrouppayments
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Usergrouppayment>>> GetUsergrouppayments()
         {
           if (_context.Usergrouppayments == null)
           {
               return NotFound();
           }
-            return await _context.Usergrouppayments.ToListAsync();
+            return Ok(await _context.Usergrouppayments.ToListAsync());
         }
 
         // GET: api/Usergrouppayments/5
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Usergrouppayment>> GetUsergrouppayment(int id)
         {
           if (_context.Usergrouppayments == null)
@@ -46,12 +50,15 @@ namespace Snakr.Controllers
                 return NotFound();
             }
 
-            return usergrouppayment;
+            return  Ok(usergrouppayment);
         }
 
         // PUT: api/Usergrouppayments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutUsergrouppayment(int id, Usergrouppayment usergrouppayment)
         {
             if (id != usergrouppayment.Id)
@@ -83,6 +90,8 @@ namespace Snakr.Controllers
         // POST: api/Usergrouppayments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Usergrouppayment>> PostUsergrouppayment(Usergrouppayment usergrouppayment)
         {
           if (_context.Usergrouppayments == null)
@@ -97,6 +106,8 @@ namespace Snakr.Controllers
 
         // DELETE: api/Usergrouppayments/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteUsergrouppayment(int id)
         {
             if (_context.Usergrouppayments == null)

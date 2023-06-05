@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Snakr.DTOs;
 using Snakr.Models;
+using Snakr.Models.DTOs.MasterUser;
 
 namespace Snakr.Controllers
 {
@@ -23,6 +23,8 @@ namespace Snakr.Controllers
 
         // GET: api/Masterusers
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<MasterUsersDTO>>> GetMasterusers()
         {
           if (_context.Masterusers == null)
@@ -43,11 +45,13 @@ namespace Snakr.Controllers
                 }
                 );
             }
-            return UsersList; //await _context.Masterusers.ToListAsync();
+            return Ok(UsersList); //await _context.Masterusers.ToListAsync();
         }
 
         // GET: api/Masterusers/5
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MasterUsersDTO>> GetMasteruser(int id)
         {
           if (_context.Masterusers == null)
@@ -69,12 +73,15 @@ namespace Snakr.Controllers
                 IdMasterBranches= masteruser.IdMasterBranches,
                 
             };
-            return user;
+            return  Ok(user);
         }
 
         // PUT: api/Masterusers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutMasteruser(int id, MasterUsersDTO masteruser)
         {
             if (id != masteruser.Id)
@@ -116,6 +123,8 @@ namespace Snakr.Controllers
         // POST: api/Masterusers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Masteruser>> PostMasteruser(MasterUsersDTO masteruser)
         {
           if (_context.Masterusers == null)
@@ -138,6 +147,8 @@ namespace Snakr.Controllers
 
         // DELETE: api/Masterusers/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMasteruser(int id)
         {
             if (_context.Masterusers == null)

@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Snakr.Models;
+using Snakr;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SnakrDbContext>(options =>
@@ -9,7 +10,7 @@ builder.Services.AddDbContext<SnakrDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Snakr API", Version = "v1" });
