@@ -1,4 +1,4 @@
-﻿namespace Snakr.DTOs
+﻿namespace Snakr.Models.DTOs.MasterUser
 {
     public class MasterUsersDTO
     {

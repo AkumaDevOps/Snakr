@@ -22,17 +22,21 @@ namespace Snakr.Controllers
 
         // GET: api/Masterproviders
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Masterprovider>>> GetMasterproviders()
         {
           if (_context.Masterproviders == null)
           {
               return NotFound();
           }
-            return await _context.Masterproviders.ToListAsync();
+            return Ok(await _context.Masterproviders.ToListAsync());
         }
 
         // GET: api/Masterproviders/5
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Masterprovider>> GetMasterprovider(int id)
         {
           if (_context.Masterproviders == null)
@@ -46,12 +50,15 @@ namespace Snakr.Controllers
                 return NotFound();
             }
 
-            return masterprovider;
+            return Ok(masterprovider);
         }
 
         // PUT: api/Masterproviders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutMasterprovider(int id, Masterprovider masterprovider)
         {
             if (id != masterprovider.Id)
@@ -83,6 +90,8 @@ namespace Snakr.Controllers
         // POST: api/Masterproviders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Masterprovider>> PostMasterprovider(Masterprovider masterprovider)
         {
           if (_context.Masterproviders == null)
@@ -97,6 +106,8 @@ namespace Snakr.Controllers
 
         // DELETE: api/Masterproviders/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMasterprovider(int id)
         {
             if (_context.Masterproviders == null)

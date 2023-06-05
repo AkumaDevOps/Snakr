@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Snakr.DTOs;
 using Snakr.Models;
+using Snakr.Models.DTOs.MasterBranch;
 
 namespace Snakr.Controllers
 {
@@ -16,89 +17,50 @@ namespace Snakr.Controllers
     public class MasterbranchesController : ControllerBase
     {
         private readonly SnakrDbContext _context;
-
-        public MasterbranchesController(SnakrDbContext context)
+        private readonly IMapper _mapper;
+        public MasterbranchesController(SnakrDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Masterbranches
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<MasterbranchDTO>>> GetMasterbranches()
         {
-
-          if (_context.Masterbranches == null)
-          {
-              return NotFound();
-          }
-            var result = new List<MasterbranchDTO>();
-            var lista = await _context.Masterbranches.ToListAsync();
-            foreach (var branch in lista)
-            {
-                result.Add(new MasterbranchDTO()
-                {
-                    BranchName = branch.BranchName,
-                    City = branch.City,
-                    Country = branch.Country,
-                    Id = branch.Id,
-                    Location = branch.Location,
-                    PhoneNumber = branch.PhoneNumber
-                });
-            }
-            return result;
+            if (_context.Masterbranches == null) return NotFound();
+            IEnumerable<Masterbranch> masterbranches = await _context.Masterbranches.ToListAsync();
+            return Ok(_mapper.Map<IEnumerable<MasterbranchDTO>>(masterbranches));
         }
 
         // GET: api/Masterbranches/5
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MasterbranchDTO>> GetMasterbranch(int id)
         {
-          if (_context.Masterbranches == null)
-          {
-              return NotFound();
-          }
-            var masterbranch = await _context.Masterbranches.FindAsync(id);
-
-            if (masterbranch == null)
-            {
-                return NotFound();
-            }
-
-            return new MasterbranchDTO()
-            {
-                PhoneNumber = masterbranch.PhoneNumber,
-                BranchName = masterbranch.BranchName,
-                City = masterbranch.City,
-                Country = masterbranch.Country,
-                Id = masterbranch.Id,
-                Location = masterbranch.Location,               
-            };
+            if (id == 0) return BadRequest();
+            if (_context.Masterbranches == null) return NotFound();
+            var masterbranch = await _context.Masterbranches.FirstOrDefaultAsync(x => x.Id == id);
+            if (masterbranch == null) return NotFound();
+            return Ok(_mapper.Map<MasterbranchDTO>(masterbranch));
         }
 
         // PUT: api/Masterbranches/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMasterbranch(int id, MasterbranchDTO masterbranch)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutMasterbranch(int id,[FromBody] MasterbranchDTO updateMasterBranch)
         {
-            Masterbranch updatableMasterBranch;
-            if (id != masterbranch.Id)
-            {
-                return BadRequest();
-            }
-            updatableMasterBranch = await _context.Masterbranches.FindAsync(id) ?? new Masterbranch();
+            if (updateMasterBranch == null || id != updateMasterBranch.Id) return BadRequest();
 
-            if (updatableMasterBranch.Id == 0)
-            {
-                return NotFound();
-            }
+            Masterbranch updatableMasterBranch = _mapper.Map<Masterbranch>(updateMasterBranch);
 
-            _context.Entry(updatableMasterBranch).State = EntityState.Modified;
-
-            updatableMasterBranch.BranchName = masterbranch.BranchName;
-            updatableMasterBranch.City = masterbranch.City;
-            updatableMasterBranch.Country = masterbranch.Country;
-            updatableMasterBranch.Location = masterbranch.Location;
-            updatableMasterBranch.PhoneNumber = masterbranch.PhoneNumber;
-
+            _context.Masterbranches.Update(updatableMasterBranch);
             try
             {
                 await _context.SaveChangesAsync();
@@ -121,28 +83,30 @@ namespace Snakr.Controllers
         // POST: api/Masterbranches
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<MasterbranchDTO>> PostMasterbranch(MasterbranchDTO masterbranch)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<MasterbranchDTO>> PostMasterbranch([FromBody] MasterbranchCreateDTO createMasterBranch)
         {
-          if (_context.Masterbranches == null)
-          {
-              return Problem("Entity set 'SnakrDbContext.Masterbranches'  is null.");
-          }
-            Masterbranch newMasterBranch = new Masterbranch()
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (_context.Masterbranches == null) return BadRequest(ModelState);
+            if (await _context.Masterbranches.FirstOrDefaultAsync(x => x.BranchName == createMasterBranch.BranchName) != null) 
             {
-                BranchName = masterbranch.BranchName,
-                City = masterbranch.City,
-                Country = masterbranch.Country,
-                Location = masterbranch.Location,
-                PhoneNumber = masterbranch.PhoneNumber,
-            };
-            _context.Masterbranches.Add(newMasterBranch);
+                ModelState.AddModelError("Branch Exists", "A branch whith this name already exists");
+                return BadRequest(ModelState);
+            }
+            if(createMasterBranch == null) return BadRequest(createMasterBranch);
+
+            Masterbranch branch = _mapper.Map<Masterbranch>(createMasterBranch);
+            await _context.Masterbranches.AddAsync(branch);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMasterbranch", new { id = newMasterBranch.Id }, newMasterBranch);
+            return CreatedAtAction("GetMasterbranch", new { name = branch.BranchName }, branch);
         }
 
         // DELETE: api/Masterbranches/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMasterbranch(int id)
         {
             if (_context.Masterbranches == null)
