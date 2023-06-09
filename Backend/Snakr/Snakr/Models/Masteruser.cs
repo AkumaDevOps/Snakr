@@ -19,7 +19,7 @@ public partial class Masteruser
 
     public virtual ICollection<Absence> Absences { get; set; } = new List<Absence>();
 
-    public virtual ICollection<FavouriteProductDTO> Favouriteproducts { get; set; } = new List<FavouriteProductDTO>();
+    public virtual ICollection<Favouriteproduct> Favouriteproducts { get; set; } = new List<Favouriteproduct>();
 
     public virtual Masterbranch IdMasterBranchesNavigation { get; set; } = null!;
 
