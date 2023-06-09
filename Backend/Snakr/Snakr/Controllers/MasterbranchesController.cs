@@ -57,10 +57,7 @@ namespace Snakr.Controllers
         public async Task<IActionResult> PutMasterbranch(int id,[FromBody] MasterbranchDTO updateMasterBranch)
         {
             if (updateMasterBranch == null || id != updateMasterBranch.Id) return BadRequest();
-
-            Masterbranch updatableMasterBranch = _mapper.Map<Masterbranch>(updateMasterBranch);
-
-            _context.Masterbranches.Update(updatableMasterBranch);
+            _context.Masterbranches.Update(_mapper.Map<Masterbranch>(updateMasterBranch));
             try
             {
                 await _context.SaveChangesAsync();
@@ -89,18 +86,16 @@ namespace Snakr.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (_context.Masterbranches == null) return BadRequest(ModelState);
+            if(createMasterBranch == null) return BadRequest(createMasterBranch);
             if (await _context.Masterbranches.FirstOrDefaultAsync(x => x.BranchName == createMasterBranch.BranchName) != null) 
             {
                 ModelState.AddModelError("Branch Exists", "A branch whith this name already exists");
                 return BadRequest(ModelState);
             }
-            if(createMasterBranch == null) return BadRequest(createMasterBranch);
 
-            Masterbranch branch = _mapper.Map<Masterbranch>(createMasterBranch);
-            await _context.Masterbranches.AddAsync(branch);
+            await _context.Masterbranches.AddAsync(_mapper.Map<Masterbranch>(createMasterBranch));
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetMasterbranch", new { name = branch.BranchName }, branch);
+            return CreatedAtAction("GetMasterbranch", new { name = createMasterBranch.BranchName }, createMasterBranch);
         }
 
         // DELETE: api/Masterbranches/5

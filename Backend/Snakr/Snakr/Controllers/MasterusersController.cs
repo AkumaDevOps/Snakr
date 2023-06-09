@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,11 @@ namespace Snakr.Controllers
     public class MasterusersController : ControllerBase
     {
         private readonly SnakrDbContext _context;
-
-        public MasterusersController(SnakrDbContext context)
+        private readonly IMapper _mapper;
+        public MasterusersController(SnakrDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;   
         }
 
         // GET: api/Masterusers
@@ -27,25 +29,9 @@ namespace Snakr.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<MasterUsersDTO>>> GetMasterusers()
         {
-          if (_context.Masterusers == null)
-          {
-              return NotFound();
-          }
-            var UsersList = new List<MasterUsersDTO>();
-            foreach (var user in await _context.Masterusers.ToListAsync())
-            {
-                UsersList.Add(new MasterUsersDTO()
-                {
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Id = user.Id,
-                    IdMasterBranches = user.IdMasterBranches,
-                    UserName = user.UserName,
-                }
-                );
-            }
-            return Ok(UsersList); //await _context.Masterusers.ToListAsync();
+          if (_context.Masterusers == null) return NotFound();      
+          IEnumerable<Masteruser> masterUsers =  await _context.Masterusers.ToListAsync();
+          return Ok(_mapper.Map<IEnumerable<MasterUsersDTO>>(masterUsers));
         }
 
         // GET: api/Masterusers/5
@@ -54,26 +40,10 @@ namespace Snakr.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MasterUsersDTO>> GetMasteruser(int id)
         {
-          if (_context.Masterusers == null)
-          {
-              return NotFound();
-          }
-            var masteruser = await _context.Masterusers.FindAsync(id);
-
-            if (masteruser == null)
-            {
-                return NotFound();
-            }
-            var user = new MasterUsersDTO(){
-                UserName = masteruser.UserName,
-                Email = masteruser.Email,   
-                FirstName = masteruser.FirstName,
-                LastName = masteruser.LastName,
-                Id = masteruser.Id,
-                IdMasterBranches= masteruser.IdMasterBranches,
-                
-            };
-            return  Ok(user);
+          if (_context.Masterusers == null) return NotFound();
+          Masteruser? masterUser = await _context.Masterusers.FirstOrDefaultAsync(x => x.Id == id);
+          if (masterUser == null) return NotFound();
+          return  Ok(_mapper.Map<MasterUsersDTO>(masterUser));
         }
 
         // PUT: api/Masterusers/5
@@ -84,23 +54,9 @@ namespace Snakr.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutMasteruser(int id, MasterUsersDTO masteruser)
         {
-            if (id != masteruser.Id)
-            {
-                return BadRequest();
-            }
-            var userFind = await _context.Masterusers.FindAsync(id);
-
-            if (userFind == null)
-            {
-                return NotFound();
-            }
-            userFind.Id = masteruser.Id;
-            userFind.Email = masteruser.Email; 
-            userFind.FirstName = masteruser.FirstName;
-            userFind.LastName = masteruser.LastName;
-            userFind.IdMasterBranches = masteruser.IdMasterBranches;
-            userFind.UserName = masteruser.UserName;
-            _context.Entry(userFind).State = EntityState.Modified;
+            if (masteruser == null || id != masteruser.Id) return BadRequest();
+            Masteruser masterUserUpdate = _mapper.Map<Masteruser>(masteruser);
+            _context.Update(masterUserUpdate);
             try
             {
                 await _context.SaveChangesAsync();
@@ -125,24 +81,19 @@ namespace Snakr.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Masteruser>> PostMasteruser(MasterUsersDTO masteruser)
+        public async Task<ActionResult<MasterUsersDTO>> PostMasteruser(MasterUsersDTO createMasterUser)
         {
-          if (_context.Masterusers == null)
-          {
-              return Problem("Entity set 'SnakrDbContext.Masterusers'  is null.");
-          }
-            var newUser = new Masteruser()
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (_context.Masterusers == null) return BadRequest(ModelState);
+            if (await _context.Masterusers.FirstOrDefaultAsync(x => x.UserName == createMasterUser.UserName) != null)
             {
-                UserName = masteruser.UserName,
-                Email = masteruser.Email,
-                FirstName = masteruser.FirstName,
-                LastName = masteruser.LastName,
-                IdMasterBranches = masteruser.IdMasterBranches,
-            };
-            _context.Masterusers.Add(newUser);
+                ModelState.AddModelError("User Exists", "A user whith this UserName already exists");
+                return BadRequest(ModelState);
+            }
+            if (createMasterUser == null) return BadRequest(createMasterUser);
+            await _context.Masterusers.AddAsync(_mapper.Map<Masteruser>(createMasterUser));
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetMasteruser", new { id = masteruser.Id }, masteruser);
+            return CreatedAtAction("GetMasteruser", new { id = createMasterUser.Id }, createMasterUser);
         }
 
         // DELETE: api/Masterusers/5

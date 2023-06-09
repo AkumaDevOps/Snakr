@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,45 +15,36 @@ namespace Snakr.Controllers
     public class FavouriteproductsController : ControllerBase
     {
         private readonly SnakrDbContext _context;
+        private readonly IMapper _mapper;
 
-        public FavouriteproductsController(SnakrDbContext context)
+        public FavouriteproductsController(SnakrDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Favouriteproducts
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Favouriteproduct>>> GetFavouriteproducts()
+        public async Task<ActionResult<IEnumerable<FavouriteProductDTO>>> GetFavouriteproducts()
         {
-          if (_context.Favouriteproducts == null)
-          {
-              return NotFound();
-          }
-            return Ok(await _context.Favouriteproducts.ToListAsync());
+            if (_context.Favouriteproducts == null) return NotFound();
+            return Ok(_mapper.Map<IEnumerable<FavouriteProductDTO>>(await _context.Favouriteproducts.ToListAsync()));
         }
 
         // GET: api/Favouriteproducts/5
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Favouriteproduct>> GetFavouriteproduct(int id)
+        public async Task<ActionResult<FavouriteProductDTO>> GetFavouriteproduct(int id)
         {
-            if (_context.Favouriteproducts == null)
-            {
-                return NotFound();
-            }
+            if(id == 0) return BadRequest();
+            if (_context.Favouriteproducts == null) return NotFound();
             var favouriteproduct = await _context.Favouriteproducts.FindAsync(id);
-
-            if (favouriteproduct == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(favouriteproduct); 
+            if (favouriteproduct == null) return NotFound();
+            return Ok(_mapper.Map<FavouriteProductDTO>(favouriteproduct)); 
         }
 
         // PUT: api/Favouriteproducts/5
@@ -61,15 +53,10 @@ namespace Snakr.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutFavouriteproduct(int id, Favouriteproduct favouriteproduct)
+        public async Task<IActionResult> PutFavouriteproduct(int id, [FromBody] FavouriteProductDTO updateFavouriteProduct)
         {
-            if (id != favouriteproduct.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(favouriteproduct).State = EntityState.Modified;
-
+            if (updateFavouriteProduct == null || id != updateFavouriteProduct.Id) return BadRequest();
+            _context.Favouriteproducts.Update(_mapper.Map<Favouriteproduct>(updateFavouriteProduct));
             try
             {
                 await _context.SaveChangesAsync();
@@ -94,16 +81,26 @@ namespace Snakr.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<Favouriteproduct>> PostFavouriteproduct(Favouriteproduct favouriteproduct)
+        public async Task<ActionResult<FavouriteProductDTO>> PostFavouriteproduct([FromBody] FavouriteProductCreateDTO createFavouriteProduct)
         {
-          if (_context.Favouriteproducts == null)
-          {
-              return Problem("Entity set 'SnakrDbContext.Favouriteproducts'  is null.");
-          }
-            _context.Favouriteproducts.Add(favouriteproduct);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (_context.Favouriteproducts == null) return BadRequest(ModelState);
+            if(createFavouriteProduct == null) return BadRequest(createFavouriteProduct);
+            if(await _context.Favouriteproducts.FirstOrDefaultAsync(x => 
+            x.IdMasterGroups == createFavouriteProduct.IdMasterGroups
+            &&
+            x.IdMasterProducts == createFavouriteProduct.IdMasterProducts
+            &&
+            x.IdMasterUsers == createFavouriteProduct.IdMasterUsers
+            ) != null) {
+                ModelState.AddModelError("Favourite product repeated", "This user already has this product as favourite");
+                return BadRequest(ModelState);
+            }
+
+            await _context.Favouriteproducts.AddAsync(_mapper.Map<Favouriteproduct>(createFavouriteProduct));
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetFavouriteproduct", new { id = favouriteproduct.Id }, favouriteproduct);
+            return CreatedAtAction("GetFavouriteproduct", new { id = createFavouriteProduct.IdMasterProducts }, createFavouriteProduct);
         }
 
         // DELETE: api/Favouriteproducts/5
