@@ -13,7 +13,7 @@ public partial class Mastergroup
 
     public virtual ICollection<Absence> Absences { get; set; } = new List<Absence>();
 
-    public virtual ICollection<Favouriteproduct> Favouriteproducts { get; set; } = new List<Favouriteproduct>();
+    public virtual ICollection<FavouriteProductDTO> Favouriteproducts { get; set; } = new List<FavouriteProductDTO>();
 
     public virtual ICollection<Usergrouppayment> Usergrouppayments { get; set; } = new List<Usergrouppayment>();
 

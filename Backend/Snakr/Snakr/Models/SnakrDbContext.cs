@@ -86,7 +86,7 @@ public partial class SnakrDbContext : DbContext
                 .HasConstraintName("Absences_IdUserGroupsMachinesReservations_FK");
         });
 
-        modelBuilder.Entity<Favouriteproduct>(entity =>
+        modelBuilder.Entity<FavouriteProductDTO>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 

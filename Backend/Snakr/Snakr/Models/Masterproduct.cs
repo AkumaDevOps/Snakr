@@ -15,7 +15,7 @@ public partial class Masterproduct
 
     public string? Description { get; set; }
 
-    public virtual ICollection<Favouriteproduct> Favouriteproducts { get; set; } = new List<Favouriteproduct>();
+    public virtual ICollection<FavouriteProductDTO> Favouriteproducts { get; set; } = new List<FavouriteProductDTO>();
 
     public virtual ICollection<Purchase> Purchases { get; set; } = new List<Purchase>();
 
